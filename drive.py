@@ -15,6 +15,9 @@ from io import BytesIO
 from keras.models import model_from_json
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array
 
+import cv2
+import matplotlib.pyplot as plt
+
 # Fix error with Keras and TensorFlow
 import tensorflow as tf
 tf.python.control_flow_ops = tf
@@ -37,6 +40,13 @@ def telemetry(sid, data):
     imgString = data["image"]
     image = Image.open(BytesIO(base64.b64decode(imgString)))
     image_array = np.asarray(image)
+    image_array = cv2.resize(image_array,dsize=(64,32))
+    image_array = cv2.cvtColor(image_array,cv2.COLOR_BGR2Luv)
+    image_array.shape += (1,)
+    image_array = image_array[:,:,0]
+    cv2.imshow('Input image', image_array)
+    #plt.imshow(image_array[:,:,0],cmap='gray')
+    #cv2.imshow('Input image', image_array[:,:,0])
     transformed_image_array = image_array[None, :, :, :]
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     steering_angle = float(model.predict(transformed_image_array, batch_size=1))
@@ -68,11 +78,13 @@ if __name__ == '__main__':
         # NOTE: if you saved the file by calling json.dump(model.to_json(), ...)
         # then you will have to call:
         #
-        #   model = model_from_json(json.loads(jfile.read()))\
+        #model = model_from_json(json.loads(jfile.read()))\
         #
         # instead.
         model = model_from_json(jfile.read())
 
+    cv2.startWindowThread()
+    cv2.namedWindow('Input image')
 
     model.compile("adam", "mse")
     weights_file = args.model.replace('json', 'h5')

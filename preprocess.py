@@ -8,12 +8,11 @@ import os
 import pickle
 
 augment_factor = 0.1
-
+resize_x = 64
+resize_y = 32
 
 images = []
 steering_angles = []
-
-csv_path = '/home/hanqiu/Udacity/CarND-Behavioral-Cloning/Record/udacity_data/driving_log.csv'
 
 
 with open(csv_path,'r') as csvfile:
@@ -29,8 +28,9 @@ with open(csv_path,'r') as csvfile:
 	for row in tqdm(csv_reader,total=csv_length):
 		for i in range(3):
 			img = cv2.imread('./Record/udacity_data/' + row[i],cv2.IMREAD_COLOR)
-			img = cv2.resize(img,dsize=(64,32))
+			img = cv2.resize(img,dsize=(resize_x,resize_y))
 			img = cv2.cvtColor(img,cv2.COLOR_BGR2Luv)
+			img.shape += (1,)
 			images.append(img[:,:,0])
 
 			angle = float(row[3])
@@ -42,6 +42,8 @@ with open(csv_path,'r') as csvfile:
 					angle = 1
 				elif (angle < -1):
 					angle = -1
+				elif (angle == 0):
+					angle = augment_factor/2
 				steering_angles.append(angle)
 			elif (i == 2):
 				angle = angle * (1 - np.sign(angle) * augment_factor)
@@ -49,31 +51,41 @@ with open(csv_path,'r') as csvfile:
 					angle = 1
 				elif (angle < -1):
 					angle = -1
+				elif (angle == 0):
+					angle = -augment_factor/2
 				steering_angles.append(angle)
 
 	csvfile.close()
 
-#print(len(steering_angles))
-#print(steering_angles)
+images_np = np.zeros((len(images),resize_y,resize_x,1),dtype=np.uint8)
+steering_angles_np = np.zeros(len(images),dtype=np.float32)
 
-pickle_file = 'processed_images.p'
-if not os.path.isfile(pickle_file):
-    print('Saving data to pickle file...')
-    try:
-        with open('processed_images.p', 'wb') as pfile:
-            pickle.dump(
-                {
-                    'images': images,
-                    'angles': steering_angles,
-                },
-                pfile, pickle.HIGHEST_PROTOCOL)
-    except Exception as e:
-        print('Unable to save data to', pickle_file, ':', e)
-        raise
+
+for i in range(len(images)):
+	images_np[i] = images[i]
+	steering_angles_np[i] = steering_angles[i]
+
+#print(type(images_np))
+#print(images_np.shape)
+
+pickle_file = 'train.p'
+
+print('Saving data to pickle file...')
+try:
+    with open('train.p', 'wb') as pfile:
+        pickle.dump(
+            {
+                'images': images_np,
+                'angles': steering_angles_np,
+            },
+            pfile, pickle.HIGHEST_PROTOCOL)
+except Exception as e:
+    print('Unable to save data to', pickle_file, ':', e)
+    raise
 
 print('Data cached in pickle file.')
 
 #plt.figure()
-#plt.imshow(images[81],cmap='gray')
+#plt.imshow(images_np[0,:,:,0],cmap='gray')
 #plt.show()
 

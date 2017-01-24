@@ -8,29 +8,28 @@ import os
 import pickle
 from sklearn.utils import shuffle
 from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Flatten
-
+from keras.layers.core import Dense, Activation, Flatten, Dropout
+from keras.layers.convolutional import Convolution2D
+from keras.layers.advanced_activations import ELU
+from keras.models import model_from_json
 
 # Load training data
 
-with open('mini_test_set.p', 'rb') as f:
+with open('train.p', 'rb') as f:
     data = pickle.load(f)
 
 X_train = data['images']
 y_train = data['angles']
 
-print("Input shape: ", X_train.shape)
-print("Output shape: ", y_train.shape)
-
 # Shuffle data
 X_train, y_train = shuffle(X_train, y_train)
 
 model = Sequential()
-model.add(Convolution2D(16, 8, 8, subsample=(4, 4), border_mode="same"),input_shape=(64,32))
+model.add(Convolution2D(16, 8, 8, subsample=(2, 2), border_mode="same",input_shape=(32,64,1)))
 model.add(ELU())
-model.add(Convolution2D(32, 5, 5, subsample=(2, 2), border_mode="same"))
+model.add(Convolution2D(30, 5, 5, subsample=(2, 2), border_mode="same")) #subsample=(2, 2)
 model.add(ELU())
-model.add(Convolution2D(64, 5, 5, subsample=(2, 2), border_mode="same"))
+model.add(Convolution2D(30, 3, 3, subsample=(2, 2), border_mode="same"))
 model.add(Flatten())
 model.add(Dropout(.2))
 model.add(ELU())
@@ -40,4 +39,11 @@ model.add(ELU())
 model.add(Dense(1))
 
 model.compile(optimizer="adam", loss="mse")
-model.fit(X_train, y_train, batch_size=200, nb_epoch=5, validation_split=0.2)
+model.fit(X_train, y_train, batch_size=128, nb_epoch=5, validation_split=0.2)
+
+model_json = model.to_json()
+with open("model.json","w") as json_file:
+	json_file.write(model_json)
+
+model.save_weights("model.h5")
+print("Saved model to disk")
