@@ -9,7 +9,7 @@ import pickle
 from random import randint
 import config
 
-augment_factor = 0.05
+augment_factor = 0.4
 
 images = []
 steering_angles = []
@@ -33,38 +33,36 @@ with open(csv_path,'r') as csvfile:
 	next(csv_reader, None)
 	for row in tqdm(csv_reader,total=csv_length):
 		for i in range(3):
-			#img = cv2.imread('./Record/udacity_data/' + row[i],cv2.IMREAD_COLOR)
-			img = mpimg.imread('./Record/udacity_data/' + row[i])
-			img = config.process_image(img,config.resize_x,config.resize_y)
-
-			#img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-			#img.shape += (1,)
-			images.append(img)
 			angle = float(row[3])
-			steering_angles.append(0)
+			if (abs(angle) > 0.05):
+				if (i == 0):
+					steering_angles.append(angle)
+				elif (i == 1):
+					angle = angle * (1 + np.sign(angle) * augment_factor)
+					if (angle > 1):
+						angle = 1
+					elif (angle < -1):
+						angle = -1
+					elif (angle == 0):
+						angle = augment_factor/2
+					steering_angles.append(angle)
+				elif (i == 2):
+					angle = angle * (1 - np.sign(angle) * augment_factor)
+					if (angle > 1):
+						angle = 1
+					elif (angle < -1):
+						angle = -1
+					elif (angle == 0):
+						angle = -augment_factor/2
+					steering_angles.append(angle)
+				#img = cv2.imread('./Record/udacity_data/' + row[i],cv2.IMREAD_COLOR)
+				img = mpimg.imread('./Record/udacity_data/' + row[i])
+				img = config.process_image(img,config.resize_x,config.resize_y)
 
-
-			#steering_angles.append(angle)
-			#if (i == 0):
-			#	steering_angles.append(angle)
-			#elif (i == 1):
-			#	angle = angle * (1 + np.sign(angle) * augment_factor)
-			#	if (angle > 1):
-			#		angle = 1
-			#	elif (angle < -1):
-			#		angle = -1
-			#	elif (angle == 0):
-			#		angle = augment_factor/2
-			#	steering_angles.append(angle)
-			#elif (i == 2):
-			#	angle = angle * (1 - np.sign(angle) * augment_factor)
-			#	if (angle > 1):
-			#		angle = 1
-			#	elif (angle < -1):
-			#		angle = -1
-			#	elif (angle == 0):
-			#		angle = -augment_factor/2
-			#	steering_angles.append(angle)
+				#img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+				#img.shape += (1,)
+				images.append(img)
+				angle = float(row[3])
 
 	csvfile.close()
 
@@ -99,7 +97,7 @@ print('Data cached in pickle file.')
 
 plt.figure(figsize=(15,10))
 for i in range(48):
-    rand = randint(0,csv_length)
+    rand = randint(0,len(images))
     sub = plt.subplot(6,8,i+1)
     sub.set_title(str(steering_angles_np[rand]))
     
@@ -107,7 +105,7 @@ for i in range(48):
 
 plt.figure(figsize=(15,10))
 for i in range(48):
-    rand = randint(0,csv_length)
+    rand = randint(0,len(images))
     sub = plt.subplot(6,8,i+1)
     sub.set_title(str(steering_angles_np[rand]))
     

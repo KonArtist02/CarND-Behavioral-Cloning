@@ -19,6 +19,7 @@ with open('train.p', 'rb') as f:
 X_train = data['images']
 y_train = data['angles']
 
+print ('Input data shape: ', X_train.shape)
 print (X_train[0].shape)
 
 plt.figure(figsize=(15,10))
