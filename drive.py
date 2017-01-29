@@ -17,10 +17,12 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 
 import cv2
 import matplotlib.pyplot as plt
+import config
 
 # Fix error with Keras and TensorFlow
 import tensorflow as tf
 tf.python.control_flow_ops = tf
+
 
 
 sio = socketio.Server()
@@ -40,13 +42,11 @@ def telemetry(sid, data):
     imgString = data["image"]
     image = Image.open(BytesIO(base64.b64decode(imgString)))
     image_array = np.asarray(image)
-    image_array = cv2.resize(image_array,dsize=(64,32))
-    image_array = cv2.cvtColor(image_array,cv2.COLOR_BGR2Luv)
-    image_array.shape += (1,)
-    image_array = image_array[:,:,0]
+    image_array = config.process_image(image_array,config.resize_x,config.resize_y)
+    image_array = (image_array - 128.)/128.
+    #image_array = image_array[:,:,0]
     cv2.imshow('Input image', image_array)
-    #plt.imshow(image_array[:,:,0],cmap='gray')
-    #cv2.imshow('Input image', image_array[:,:,0])
+
     transformed_image_array = image_array[None, :, :, :]
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     steering_angle = float(model.predict(transformed_image_array, batch_size=1))
