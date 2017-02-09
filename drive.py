@@ -18,6 +18,7 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 import cv2
 import matplotlib.pyplot as plt
 import config
+import utils
 
 # Fix error with Keras and TensorFlow
 import tensorflow as tf
@@ -42,8 +43,12 @@ def telemetry(sid, data):
     imgString = data["image"]
     image = Image.open(BytesIO(base64.b64decode(imgString)))
     image_array = np.asarray(image)
-    image_array = config.process_image(image_array,config.resize_x,config.resize_y)
-    image_array = (image_array - 128.)/128.
+    image_array = cv2.resize(image_array,dsize=(config.resize_x,config.resize_y))
+    image_array = image_array[int(config.resize_y*0.43):int(config.resize_y*0.84),:]
+    g_max = float(np.amax(image_array))
+    g_min = float(np.amin(image_array))
+    image_array = -1 + (image_array.astype('float') - g_min)*(2)/(g_max-g_min)
+    #image_array = (image_array - 128.)/128.
     #image_array = image_array[:,:,0]
     cv2.imshow('Input image', image_array)
 

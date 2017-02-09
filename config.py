@@ -9,8 +9,8 @@ cropped_y_bottom = int(resize_y*0.84)
 img_size_x = resize_x
 img_size_y = cropped_y_bottom-cropped_y_top
 
-augment_factor = 0.3
-angle_thres = 0.05
+augment_factor = 1
+angle_thres = 0.2
 
 batch_size = 200
 

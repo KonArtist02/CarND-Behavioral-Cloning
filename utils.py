@@ -78,18 +78,20 @@ def process_image(img):
 		mask = img[:,:,2] + brightness_variation > 0
 		img[:,:,2] = np.where(mask,img[:,:,2]+brightness_variation,0)
 	img = cv2.cvtColor(img,cv2.COLOR_HSV2RGB)
+	g_max = float(np.amax(img))
+	g_min = float(np.amin(img))
+	img = -1 + (img.astype('float') - g_min)*(2)/(g_max-g_min)
 	#img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-
 
 	return img
 
 def myGenerator(steering_angles_zero, img_paths_zero, steering_angles_right, img_paths_right, steering_angles_left, img_paths_left, batch_size):
 	while True:
-		#steering_angles_zero, img_paths_zero = shuffle(steering_angles_zero, img_paths_zero)
-		#steering_angles_right, img_paths_right = shuffle(steering_angles_right, img_paths_right)
-		#steering_angles_left, img_paths_left = shuffle(steering_angles_left, img_paths_left)
+		steering_angles_zero, img_paths_zero = shuffle(steering_angles_zero, img_paths_zero)
+		steering_angles_right, img_paths_right = shuffle(steering_angles_right, img_paths_right)
+		steering_angles_left, img_paths_left = shuffle(steering_angles_left, img_paths_left)
 
-		batch_x = np.zeros((batch_size,config.img_size_y,config.img_size_x,3),dtype=np.uint8)
+		batch_x = np.zeros((batch_size,config.img_size_y,config.img_size_x,3),dtype=np.float16)
 		batch_y = np.zeros(batch_size,dtype=np.float16)
 
 		assert (len(steering_angles_zero) == len(img_paths_zero))
