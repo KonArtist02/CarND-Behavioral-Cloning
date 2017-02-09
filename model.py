@@ -90,7 +90,7 @@ num_samples = len(img_paths_zero)+len(img_paths_left)+len(img_paths_right)
 #X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.10, random_state=42) 
 #model.fit(X_train, y_train, batch_size=BATCH_SIZE, nb_epoch=3, validation_split=0.2)
 model.fit_generator(utils.myGenerator(steering_angles_zero, img_paths_zero, steering_angles_right, \
-	img_paths_right, steering_angles_left, img_paths_left, config.batch_size), samples_per_epoch=5000, nb_epoch=5)
+	img_paths_right, steering_angles_left, img_paths_left, config.batch_size), samples_per_epoch=5000, nb_epoch=7)
 
 print ("Training Time: ", time.clock()-start_time)
 
