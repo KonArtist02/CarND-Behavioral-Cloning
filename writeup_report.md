@@ -1,10 +1,3 @@
-#**Behavioral Cloning** 
-
-##Writeup Template
-
-###You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
 
 **Behavioral Cloning Project**
 
@@ -87,8 +80,8 @@ I started out with an architecture from [comma.ai](https://github.com/commaai/re
 ## Data Augmentation
 Looking at the given dataset from Udacity, the steering angle is heavily biased to zero. For balancing the data is split into three bags. One for close to zero angles and one for each positive and negative angles. Like in bootstrapping a single batch is sampled from these three bags with the same possibility. This enables the car to drive smoothly on straight lines and also predicting large angles in big turns.
 ![alt text][image1]
-![alt text][image1]
-![alt text][image1]
+![alt text][image2]
+![alt text][image3]
 
 Not only are the center images used but also the images from the left and right cameras. The network has no means to differ from which camera the image come from, a solution as proposed in the NVIDIA paper is to augment side images. This teaches the car to revover from the side to the middle of the road. The augmentation increases for greater steering angles. 
 
