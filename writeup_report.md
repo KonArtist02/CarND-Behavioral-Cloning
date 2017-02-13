@@ -18,10 +18,10 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/placeholder.png "Model Visualization"
-[image2]: ./examples/placeholder.png "Grayscaling"
-[image3]: ./examples/placeholder_small.png "Recovery Image"
-[image4]: ./examples/placeholder_small.png "Recovery Image"
+[image1]: ./doc_images/0_left_angles.png "Left angles"
+[image2]: ./doc_images/0_near_zero_angles.png "Near zero angles"
+[image3]: ./doc_images/0_right_angles.png  "Right angles"
+[image4]: ./doc_images/1_preprocessing.png "Preprocessing and predicted angles"
 [image5]: ./examples/placeholder_small.png "Recovery Image"
 [image6]: ./examples/placeholder_small.png "Normal Image"
 [image7]: ./examples/placeholder_small.png "Flipped Image"
@@ -86,6 +86,9 @@ I started out with an architecture from [comma.ai](https://github.com/commaai/re
 
 ## Data Augmentation
 Looking at the given dataset from Udacity, the steering angle is heavily biased to zero. For balancing the data is split into three bags. One for close to zero angles and one for each positive and negative angles. Like in bootstrapping a single batch is sampled from these three bags with the same possibility. This enables the car to drive smoothly on straight lines and also predicting large angles in big turns.
+![alt text][image1]
+![alt text][image1]
+![alt text][image1]
 
 Not only are the center images used but also the images from the left and right cameras. The network has no means to differ from which camera the image come from, a solution as proposed in the NVIDIA paper is to augment side images. This teaches the car to revover from the side to the middle of the road. The augmentation increases for greater steering angles. 
 
