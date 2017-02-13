@@ -77,6 +77,8 @@ A small portion of the data (5%) is used to validate the model. The model was al
 
 ##### Final Model Architecture
 
+I use convolutional layers and fully connected layers with Relu-activation functions. Dropout and l2-regularization are used to prevent overfitting. A single max pooling layer is used to reduce the size of the network. The output is a single steering angle.
+
 **Input:**  
 - 33x160x3 image
 
