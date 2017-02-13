@@ -90,8 +90,15 @@ def process_image(img):
 	g_max = float(np.amax(img))
 	g_min = float(np.amin(img))
 	img = -1 + (img.astype('float') - g_min)*(2)/(g_max-g_min)
-	print (img.shape)
+
 	return img
+
+def flip_image(img, steering_angle):
+	# Randomly flip images 
+	if (randint(0,1) == 0):
+		img = cv2.flip(img,1)
+		steering_angle = -steering_angle
+	return img, steering_angle
 
 def myGenerator(steering_angles_zero, img_paths_zero, steering_angles_right, img_paths_right, steering_angles_left, img_paths_left, batch_size):
 	while True:
@@ -113,20 +120,17 @@ def myGenerator(steering_angles_zero, img_paths_zero, steering_angles_right, img
 				rand = randint(0, len(steering_angles_zero)-1)
 				img = cv2.imread('./Record/udacity_data/' + img_paths_zero[rand],cv2.IMREAD_COLOR)
 				img = process_image(img)
-				batch_x[i] = img
-				batch_y[i] = steering_angles_zero[rand]
+				batch_x[i],batch_y[i] = flip_image(img, steering_angles_zero[rand])
 			if (bag == 1):
 				rand = randint(0, len(steering_angles_right)-1)
 				img = cv2.imread('./Record/udacity_data/' + img_paths_right[rand],cv2.IMREAD_COLOR)
 				img = process_image(img)
-				batch_x[i] = img
-				batch_y[i] = steering_angles_right[rand]
+				batch_x[i],batch_y[i] = flip_image(img, steering_angles_right[rand])
 			if (bag == 2):
 				rand = randint(0, len(steering_angles_left)-1)
 				img = cv2.imread('./Record/udacity_data/' + img_paths_left[rand],cv2.IMREAD_COLOR)
 				img = process_image(img)
-				batch_x[i] = img
-				batch_y[i] = steering_angles_left[rand]
+				batch_x[i],batch_y[i] = flip_image(img, steering_angles_left[rand])
 
 		yield (batch_x, batch_y) 
 

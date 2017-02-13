@@ -94,6 +94,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     model = load_model(args.model)
+    cv2.startWindowThread()
+    cv2.namedWindow('Input image', cv2.WINDOW_AUTOSIZE )
+
 
     if args.image_folder != '':
         print("Creating image folder at {}".format(args.image_folder))

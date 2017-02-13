@@ -8,46 +8,10 @@ import utils
 import cv2
 import config
 from keras.models import load_model
-#csv_path = '/home/hanqiu/Udacity/CarND-Behavioral-Cloning/Record/udacity_data/driving_log.csv'
-#
-#
-#
-#with open(csv_path,'r') as csvfile:
-#	csv_reader = csv.reader(csvfile, delimiter=',',skipinitialspace=True)
-#	for csv_length,row in enumerate(csv_reader):
-#		pass
-#	csvfile.close()
-#
-#with open('train.p', 'rb') as f:
-#    data = pickle.load(f)
-#
-#X_train = data['images']
-#y_train = data['angles']
-#
-#print ('Input data shape: ', X_train.shape)
-#print (X_train[0].shape)
-#
-#plt.figure(figsize=(15,10))
-#for i in range(48):
-#    rand = randint(0,csv_length)
-#    sub = plt.subplot(6,8,i+1)
-#    sub.set_title(str(y_train[rand]))
-#    
-#    plt.imshow(X_train[rand,:,:,:])
-#
-#plt.figure(figsize=(15,10))
-#for i in range(48):
-#    rand = randint(0,csv_length)
-#    sub = plt.subplot(6,8,i+1)
-#    sub.set_title(str(y_train[rand]))
-#    
-#    plt.imshow(X_train[rand,:,:,:])
-#
-#plt.show()
 
 
-## Histogram
 
+## Loading data and initialization
 csv_path = '/home/hanqiu/Udacity/CarND-Behavioral-Cloning/Record/udacity_data/driving_log.csv'
 
 steering_angles_zero, img_paths_zero, steering_angles_right, img_paths_right, steering_angles_left, img_paths_left = utils.read_csv(csv_path)
@@ -63,27 +27,9 @@ for i in range(len(steering_angles_left)):
 for i in range(len(steering_angles_right)):
     steering_angles_right_np[i] = steering_angles_right[i]
 
-#plt.figure(0)
-#a = np.histogram(steering_angles_zero_np)
-#plt.hist(steering_angles_zero_np, bins='auto')
-#
-#plt.figure(1)
-#a = np.histogram(steering_angles_left_np)
-#plt.hist(steering_angles_left_np, bins='auto')
-#
-#plt.figure(2)
-#a = np.histogram(steering_angles_right_np)
-#plt.hist(steering_angles_right_np, bins='auto')
-#
-#
+# Create one batch with bags
 batch_x = np.zeros((config.batch_size,config.img_size_y,config.img_size_x,3),dtype=np.float16)
 batch_y = np.zeros(config.batch_size,dtype=np.float16)
-
-assert (len(steering_angles_zero) == len(img_paths_zero))
-#print(len(img_paths_right))
-
-
-
 for i in range(config.batch_size):
     bag = randint(1,2)
     if (bag == 0):
@@ -105,20 +51,36 @@ for i in range(config.batch_size):
         batch_x[i] = img
         batch_y[i] = steering_angles_left[rand]
 
+
+# Load model
+model = load_model('model.h5')
 #with open('model.json', 'r') as jfile:
 #    model = model_from_json(jfile.read())
 #model.compile("adam", "mse")
 #weights_file = 'model.h5'
 #model.load_weights(weights_file)
 
-model = load_model('model.h5')
 
+
+## Histogram of steering angles
+plt.figure(0)
+a = np.histogram(steering_angles_zero_np)
+plt.hist(steering_angles_zero_np, range=(-config.angle_thres, config.angle_thres),bins=30)
+
+plt.figure(1)
+a = np.histogram(steering_angles_left_np)
+plt.hist(steering_angles_left_np, range=(-1,-config.angle_thres), bins=18)
+
+plt.figure(2)
+a = np.histogram(steering_angles_right_np)
+plt.hist(steering_angles_right_np, range=(config.angle_thres,1),bins=18)
+
+
+## Images with predicted angles
 plt.figure(3,figsize=(15,10))
 for i in range(16):
     rand = randint(0,config.batch_size-1)
     image_array = batch_x[rand,:,:,:]
-    print (image_array.shape)
-    print (type(image_array))
     transformed_image_array = image_array[None, :, :, :]
     steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
     sub = plt.subplot(4,4,i+1)
@@ -127,19 +89,19 @@ for i in range(16):
     #print (batch_x[rand,:,:,:])
 
 
-#plt.figure(4)
-#for i in range(48):
-#    img2 = cv2.imread('./Record/udacity_data/' + img_paths_left[42],cv2.IMREAD_COLOR) 
-#    img2 = utils.process_image(img2)
-#    sub = plt.subplot(6,8,i+1)
-#    plt.imshow(img2)
-#
+## Plot same image with randomized preprocessing
+plt.figure(4)
+for i in range(48):
+    img = cv2.imread('./Record/udacity_data/' + img_paths_left[42],cv2.IMREAD_COLOR) 
+    img = utils.process_image(img)
+    sub = plt.subplot(6,8,i+1)
+    plt.imshow(img)
+
 #plt.figure(5)
 #rand = randint(0, len(steering_angles_zero)-1)
 #img = cv2.imread('./Record/udacity_data/' + img_paths_zero[rand],cv2.IMREAD_COLOR)
 #img = utils.process_image(img)
-#plt.imshow(img2)
-
+#plt.imshow(img)
 
 
 plt.show()
