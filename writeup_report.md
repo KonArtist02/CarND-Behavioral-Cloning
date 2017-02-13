@@ -58,39 +58,7 @@ The model.py file contains the code for training and saving the convolution neur
 
 ####1. An appropriate model architecture has been employed
 
-**Input: **  
-- 33x160x3 image
-
-**Convolutional layer 1: **  
-- Convolution: 29x156x32
-
-**Convolutional layer 2: **  
-- Convolution: 25x152x16
-- Max pooling: 5x5x70
-
-**Convolutional layer 3: **
-- Convolution: 23x150x8
-
-**Convolutional layer 4: **    
-- Convolution: 21x148x8
-- Max Pooling: 10x74x8
-- Flatten: 5920
-
-**Fully connected 1: **
-- Fully: 5920x500 (l2-regulatization)
-- Dropout: 0.2
-
-**Fully connected 2: **
-- Fully: 500x500 (l2-regulatization)
-- Dropout: 0.3
-
-**Fully connected 3: **
-- Fully: 500x200 (l2-regulatization)
-- Dropout: 0.3
-
-**Output layer:**  
-- Fully: 200x1 (l2-regulatization)
-- Dropout:0.5
+The model consists of four convolutional layers and four fully connected layers. Deeper models have been tested but the current network is sufficient for the task.
 
 
 ####2. Attempts to reduce overfitting in the model
@@ -113,15 +81,57 @@ For details about how I created the training data, see the next section.
 
 ####1. Solution Design Approach
 
-[comma.ai](https://github.com/commaai/research/blob/master/train_steering_model.py())
+## Searching for existing networks
+I started out with an architecture from [comma.ai](https://github.com/commaai/research/blob/master/train_steering_model.py) and reduced it for my purposes. Since I expected my model to use only few high level features since most of the road is just blank gray with some edge detection on the sides of the road, my convolutional layers become less deeper after each layer.
+
+## Data Augmentation
+Looking at the given dataset from Udacity, the steering angle is heavily biased to zero. For balancing the data is split into three bags. One for close to zero angles and one for each positive and negative angles. Like in bootstrapping a single batch is sampled from these three bags with the same possibility. This enables the car to drive smoothly on straight lines and also predicting large angles in big turns.
+
+Not only are the center images used but also the images from the left and right cameras. The network has no means to differ from which camera the image come from, a solution as proposed in the NVIDIA paper is to augment side images. This teaches the car to revover from the side to the middle of the road. The augmentation increases for greater steering angles. 
+
+The image is resized and the horizon is cropped out. I convert the image to HSV color space to randomly vary the brightness in a chosen bound to make the model invariant to lighting which is especially import for the second track. Then the image is converted back to RGB. Afterwards the image is flipped with a possiblity of 50% to cover turns to the right since most of the data consists of left turns. 
+
+At last the image is min-max normalized and scaled to [-1, 1]. This step was essential because otherwise the model got stuck in a local minimum. This resulted in nearly constant steering angle outputs near zero disregarding the input image.
+
+## Hyper Parameters
+In this project most of the parameter tuning was done in the data augmentation step. The learning rate was chosen by the adams optimizer. Since the training data is sampled randomly in a python generator, the number of epochs is rather useless as parameter. What counts is how many images pass through the network. It is currently a value between 40000 and 50000 which is 200-250 batches with a batch size of 200 samples.
+
 
 ####2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
+##Input: ##  
+- 33x160x3 image
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
+##Convolutional layer 1: ##  
+- Convolution: 29x156x32
 
-![alt text][image1]
+##Convolutional layer 2: ##  
+- Convolution: 25x152x16
+- Max pooling: 5x5x70
+
+##Convolutional layer 3: ##
+- Convolution: 23x150x8
+
+##Convolutional layer 4: ##    
+- Convolution: 21x148x8
+- Max Pooling: 10x74x8
+- Flatten: 5920
+
+##Fully connected 1: ##
+- Fully: 5920x500 (l2-regulatization)
+- Dropout: 0.2
+
+##Fully connected 2: ##
+- Fully: 500x500 (l2-regulatization)
+- Dropout: 0.3
+
+##Fully connected 3: ##
+- Fully: 500x200 (l2-regulatization)
+- Dropout: 0.3
+
+##Output layer: ##  
+- Fully: 200x1 (l2-regulatization)
+- Dropout:0.5
 
 ####3. Creation of the Training Set & Training Process
 
