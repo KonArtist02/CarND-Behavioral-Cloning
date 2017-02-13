@@ -5,6 +5,9 @@ from sklearn.utils import shuffle
 from random import randint
 import cv2
 
+
+# Read csv file and split data into three bags with left, right and nearly zero steering angles
+# Center, left and right images are used. The angle is increased for the off-center images.
 def read_csv(csv_path):
 	img_paths_left = []
 	img_paths_zero = []
@@ -66,10 +69,14 @@ def read_csv(csv_path):
 	return steering_angles_zero, img_paths_zero, steering_angles_right, img_paths_right, steering_angles_left, img_paths_left
 
 def process_image(img):
+	# Resize
 	img = cv2.resize(img,dsize=(config.resize_x,config.resize_y))
-	img = img[int(config.resize_y*0.43):int(config.resize_y*0.84),:]
-	img = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
 	
+	# Crop
+	img = img[int(config.resize_y*0.43):int(config.resize_y*0.84),:]
+	
+	# Brightness variation in HSV
+	img = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
 	brightness_variation = randint(-70,70)
 	if(brightness_variation >= 0):
 		mask = img[:,:,2] + brightness_variation < 255
@@ -78,24 +85,28 @@ def process_image(img):
 		mask = img[:,:,2] + brightness_variation > 0
 		img[:,:,2] = np.where(mask,img[:,:,2]+brightness_variation,0)
 	img = cv2.cvtColor(img,cv2.COLOR_HSV2RGB)
+
+	# Min max normalization and scaling to -1 to 1
 	g_max = float(np.amax(img))
 	g_min = float(np.amin(img))
 	img = -1 + (img.astype('float') - g_min)*(2)/(g_max-g_min)
-	#img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-
+	print (img.shape)
 	return img
 
 def myGenerator(steering_angles_zero, img_paths_zero, steering_angles_right, img_paths_right, steering_angles_left, img_paths_left, batch_size):
 	while True:
+		# Shuffle data
 		steering_angles_zero, img_paths_zero = shuffle(steering_angles_zero, img_paths_zero)
 		steering_angles_right, img_paths_right = shuffle(steering_angles_right, img_paths_right)
 		steering_angles_left, img_paths_left = shuffle(steering_angles_left, img_paths_left)
 
+		# Initialize batches
 		batch_x = np.zeros((batch_size,config.img_size_y,config.img_size_x,3),dtype=np.float16)
 		batch_y = np.zeros(batch_size,dtype=np.float16)
 
 		assert (len(steering_angles_zero) == len(img_paths_zero))
 
+		# Randomly sample data from the three bags and preprocess
 		for i in range(batch_size):
 			bag = randint(0,2)
 			if (bag == 0):

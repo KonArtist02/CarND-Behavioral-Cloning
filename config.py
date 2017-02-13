@@ -9,8 +9,8 @@ cropped_y_bottom = int(resize_y*0.84)
 img_size_x = resize_x
 img_size_y = cropped_y_bottom-cropped_y_top
 
-augment_factor = 1
-angle_thres = 0.05
+augment_factor = 1 # of steering anges for off-center images
+angle_thres = 0.05 # threshold for dividing data set into three bags
 
 batch_size = 200
 
