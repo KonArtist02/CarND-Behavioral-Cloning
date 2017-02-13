@@ -133,22 +133,3 @@ def myGenerator(steering_angles_zero, img_paths_zero, steering_angles_right, img
 				batch_x[i],batch_y[i] = flip_image(img, steering_angles_left[rand])
 
 		yield (batch_x, batch_y) 
-
-
-
-		#num_samples = len(steering_angles)
-		#for offset in range(0, num_samples, batch_size):
-		#	if (num_samples >= offset + batch_size):
-		#		end = batch_size
-		#		batch_x = np.zeros((batch_size,config.img_size_y,config.img_size_x,3),dtype=np.uint8)
-		#		batch_y = np.zeros(batch_size,dtype=np.float16)
-		#	else:
-		#		end = num_samples-offset
-		#		batch_x = np.zeros((num_samples-offset,config.img_size_y,config.img_size_x,3),dtype=np.uint8)
-		#		batch_y = np.zeros(num_samples-offset,dtype=np.float16)
-		#	for i in range(offset,offset+end):
-		#		img = mpimg.imread('./Record/udacity_data/' + img_paths[i])
-		#		img = config.process_image(img,config.resize_x,config.resize_y)
-		#		batch_x[i-offset] = img
-		#		batch_y[i-offset] = steering_angles[i]
-		#	yield (batch_x, batch_y)

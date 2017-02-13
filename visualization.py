@@ -63,21 +63,24 @@ model = load_model('model.h5')
 
 
 ## Histogram of steering angles
-plt.figure(0)
+fig = plt.figure(0)
 a = np.histogram(steering_angles_zero_np)
 plt.hist(steering_angles_zero_np, range=(-config.angle_thres, config.angle_thres),bins=30)
+fig.suptitle('Near zero angles')
 
-plt.figure(1)
+fig = plt.figure(1)
 a = np.histogram(steering_angles_left_np)
 plt.hist(steering_angles_left_np, range=(-1,-config.angle_thres), bins=18)
+fig.suptitle('Left angles')
 
-plt.figure(2)
+fig = plt.figure(2)
 a = np.histogram(steering_angles_right_np)
 plt.hist(steering_angles_right_np, range=(config.angle_thres,1),bins=18)
-
+fig.suptitle('Right angles')
 
 ## Images with predicted angles
-plt.figure(3,figsize=(15,10))
+fig = plt.figure(3,figsize=(15,10))
+fig.suptitle('Processed images with predicted angles', fontsize=16)
 for i in range(16):
     rand = randint(0,config.batch_size-1)
     image_array = batch_x[rand,:,:,:]

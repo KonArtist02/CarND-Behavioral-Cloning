@@ -93,6 +93,7 @@ model.compile(optimizer="adam", loss="mse")
 #X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.10, random_state=42) 
 #model.fit(X_train, y_train, batch_size=BATCH_SIZE, nb_epoch=3, validation_split=0.2)
 
+# Create call back for tensorboard
 tb_callback = TensorBoard(log_dir='./logs/02', write_graph=True, write_images=False) #histogram_freq=1
 
 
